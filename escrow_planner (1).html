@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paycheck Escrow Planner</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f5;
+      --bg3: #ebebeb;
+      --text: #1a1a1a;
+      --text2: #555;
+      --text3: #999;
+      --border: #ddd;
+      --border2: #ccc;
+      --green-bg: #EAF3DE;
+      --green-border: #C0DD97;
+      --green-dark: #173404;
+      --green-mid: #3B6D11;
+      --red-bg: #FCEBEB;
+      --red-border: #F7C1C1;
+      --red-dark: #501313;
+      --red-mid: #A32D2D;
+      --amber-bg: #FAEEDA;
+      --amber-border: #FAC775;
+      --radius: 8px;
+      --radius-sm: 5px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+
+    .freq-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .freq-btn {
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .freq-btn:hover {
+      background: var(--bg2);
+    }
+
+    .freq-btn.active {
+      background: var(--bg2);
+      border: 2px solid var(--border2);
+      font-weight: 600;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media(max-width:650px) {
+      .three-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media(max-width:420px) {
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-group label {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .field-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 11px;
+      background: var(--bg);
+    }
+
+    .field-wrap input {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+    }
+
+    .field-wrap input::placeholder {
+      color: var(--text3);
+    }
+
+    .field-wrap span {
+      color: var(--text3);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    th {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-align: left;
+      padding: 0 8px 8px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 6px 8px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td input,
+    td select {
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    td input[type=date] {
+      min-width: 130px;
+    }
+
+    td select {
+      cursor: pointer;
+      color: var(--text2);
+    }
+
+    td input::placeholder {
+      color: var(--text3);
+    }
+
+    .dur-input {
+      width: 46px !important;
+      text-align: center;
+      border: 1px solid var(--border) !important;
+      border-radius: 4px;
+      padding: 2px 4px !important;
+      background: var(--bg) !important;
+      font-size: 13px;
+    }
+
+    .dur-input:focus {
+      border-color: var(--border2) !important;
+      outline: none;
+    }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text3);
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    .del-btn:hover {
+      color: #c0392b;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 16px;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      margin-top: 10px;
+      font-family: inherit;
+    }
+
+    .add-btn:hover {
+      background: var(--bg2);
+      color: var(--text);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    .result-box {
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-top: 24px;
+    }
+
+    .result-ok {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+    }
+
+    .result-err {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+
+    .result-ok .result-label {
+      color: var(--green-mid);
+    }
+
+    .result-err .result-label {
+      color: var(--red-mid);
+    }
+
+    .result-amount {
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .result-ok .result-amount {
+      color: var(--green-dark);
+    }
+
+    .result-err .result-amount {
+      color: var(--red-dark);
+    }
+
+    .result-sub {
+      font-size: 13px;
+    }
+
+    .result-ok .result-sub {
+      color: var(--green-mid);
+    }
+
+    .result-err .result-sub {
+      color: var(--red-mid);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .metric-card {
+      background: var(--bg2);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .timeline-section {
+      margin-top: 8px;
+    }
+
+    /* Timeline rows — fixed 3-column grid: icon+name | date+amount | balance */
+    .tl-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 0 16px;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .tl-payday {
+      background: var(--bg2);
+    }
+
+    .tl-bill {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+    }
+
+    .tl-bill-overdue {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+    }
+
+    .tl-name {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tl-txn {
+      font-size: 12px;
+      color: var(--text2);
+      text-align: right;
+      white-space: nowrap;
+      min-width: 90px;
+    }
+
+    .tl-bal {
+      font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+
+    .tl-bal-ok {
+      color: var(--green-mid);
+    }
+
+    .tl-bal-warn {
+      color: #b96b00;
+    }
+
+    /* below minimum but not negative */
+    .tl-bal-bad {
+      color: #c0392b;
+    }
+
+    .show-more-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+      margin-top: 8px;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .show-more-btn:hover {
+      background: var(--bg2);
+    }
+
+    .save-indicator {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 6px;
+      text-align: right;
+      min-height: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <h1>Paycheck Escrow Planner</h1>
+    <p class="subtitle">Enter your bills and find the exact amount to deposit each paycheck — so the account never runs
+      dry.</p>
+
+    <p class="section-label">Pay frequency</p>
+    <div class="freq-grid" id="freqGrid"></div>
+
+    <div class="three-col">
+      <div class="field-group">
+        <label class="section-label" for="nextPayday">Next payday</label>
+        <div class="field-wrap">
+          <input type="date" id="nextPayday">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="section-label" for="balanceInput">Current account balance</label>
+        <div class="field-wrap">
+          <span>$</span>
+          <input type="number" id="balanceInput" placeholder="0.00" min="0" step="0.01" value="0">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="section-label" for="minBufferInput">Minimum buffer (don't go below)</label>
+        <div class="field-wrap">
+          <span>$</span>
+          <input type="number" id="minBufferInput" placeholder="0.00" min="0" step="0.01" value="100">
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label">Bills &amp; payments</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%">Name</th>
+            <th style="width:13%">Amount ($)</th>
+            <th style="width:16%">Next due date</th>
+            <th style="width:16%">Repeat</th>
+            <th style="width:18%">Duration</th>
+            <th style="width:4%"></th>
+          </tr>
+        </thead>
+        <tbody id="billsBody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addBill()">+ Add bill</button>
+
+    <p class="section-label" style="margin-top: 28px;">One-off deposits</p>
+    <p style="font-size: 13px; color: var(--text2); margin-bottom: 16px;">Bonuses, gifts, tax refunds, or other
+      irregular income</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%">Description</th>
+            <th style="width:20%">Amount ($)</th>
+            <th style="width:40%">Expected date</th>
+            <th style="width:4%"></th>
+          </tr>
+        </thead>
+        <tbody id="depositsBody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addDeposit()">+ Add one-off deposit</button>
+    <div class="save-indicator" id="saveIndicator"></div>
+
+    <div id="resultBox" class="result-box result-ok" style="display:none;">
+      <p class="result-label" id="resultLabel">Deposit per paycheck</p>
+      <p class="result-amount" id="resultAmount">$0.00</p>
+      <p class="result-sub" id="resultSub"></p>
+    </div>
+
+    <div class="summary-grid" id="summaryGrid" style="display:none;">
+      <div class="metric-card">
+        <p class="metric-label">Annual bills total</p>
+        <p class="metric-value" id="annualTotal">$0.00</p>
+        <p class="metric-sub">across all bills</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Paychecks / year</p>
+        <p class="metric-value" id="paysPerYear">26</p>
+        <p class="metric-sub" id="freqLabel">bi-weekly</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Lowest balance</p>
+        <p class="metric-value" id="minBalance">$0.00</p>
+        <p class="metric-sub">projected minimum</p>
+      </div>
+    </div>
+
+    <div id="timelineSection" style="display:none;">
+      <hr class="divider">
+      <p class="section-label">Account timeline <span
+          style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);">(first 12 months)</span></p>
+      <!-- timeline header -->
+      <div
+        style="display:grid;grid-template-columns:1fr auto auto;gap:0 16px;padding:0 11px 6px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">
+        <span>Event</span>
+        <span style="text-align:right;min-width:90px;">Transaction</span>
+        <span style="text-align:right;min-width:80px;">Balance</span>
+      </div>
+      <div class="timeline-section" id="timelineRows"></div>
+      <button class="show-more-btn" id="showMoreBtn" onclick="toggleTimeline()" style="display:none;">Show full 2-year
+        timeline</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'escrowPlannerData_v2';
+
+    const FREQ_OPTIONS = [
+      { label: 'Weekly', key: 'weekly', perYear: 52 },
+      { label: 'Bi-weekly', key: 'biweekly', perYear: 26 },
+      { label: 'Semi-monthly', key: 'semimonthly', perYear: 24 },
+      { label: 'Monthly', key: 'monthly', perYear: 12 },
+    ];
+
+    const REPEAT_OPTIONS = [
+      { label: 'One-time', key: 'once' },
+      { label: 'Weekly', key: 'weekly', daysApart: 7 },
+      { label: 'Bi-weekly', key: 'biweekly', daysApart: 14 },
+      { label: 'Monthly', key: 'monthly', monthsApart: 1, hasDuration: true },
+      { label: 'Quarterly', key: 'quarterly', monthsApart: 3, hasDuration: true },
+      { label: 'Semi-annual', key: 'semiannual', monthsApart: 6 },
+      { label: 'Annual', key: 'annual', monthsApart: 12 },
+    ];
+
+    let payFreq = FREQ_OPTIONS[1];
+    let bills = [];
+    let deposits = [];
+    let nextId = 1;
+    let nextDepositId = 1;
+    let showFullTimeline = false;
+    let saveTimer = null;
+
+    // ── Persistence ───────────────────────────────────────────────────────────────
+
+    function saveToStorage() {
+      const data = {
+        payFreqKey: payFreq.key,
+        nextPayday: document.getElementById('nextPayday').value,
+        balance: document.getElementById('balanceInput').value,
+        minBuffer: document.getElementById('minBufferInput').value,
+        bills, nextId,
+        deposits, nextDepositId,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      document.getElementById('saveIndicator').textContent = 'Saved ' + new Date().toLocaleTimeString();
+    }
+
+    function loadFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      try {
+        const data = JSON.parse(raw);
+        payFreq = FREQ_OPTIONS.find(f => f.key === data.payFreqKey) || FREQ_OPTIONS[1];
+        nextId = data.nextId || 1;
+        nextDepositId = data.nextDepositId || 1;
+        bills = data.bills || [];
+        deposits = data.deposits || [];
+        document.getElementById('nextPayday').value = data.nextPayday || '';
+        document.getElementById('balanceInput').value = data.balance || '0';
+        document.getElementById('minBufferInput').value = data.minBuffer ?? '100';
+        return true;
+      } catch (e) { return false; }
+    }
+
+    function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveToStorage, 600); }
+
+    // ── Date helpers ──────────────────────────────────────────────────────────────
+
+    function parseDate(s) { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function dateStr(d) { if (!d) return ''; if (typeof d === 'string') return d; return d.toISOString().split('T')[0]; }
+    function addMonths(d, n) { const r = new Date(d); r.setMonth(r.getMonth() + n); return r; }
+    function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+    function nextPaycheckDate(from) {
+      const d = new Date(from);
+      if (payFreq.key === 'weekly') d.setDate(d.getDate() + 7);
+      else if (payFreq.key === 'biweekly') d.setDate(d.getDate() + 14);
+      else if (payFreq.key === 'semimonthly') { if (d.getDate() < 15) d.setDate(15); else { d.setMonth(d.getMonth() + 1); d.setDate(1); } }
+      else d.setMonth(d.getMonth() + 1);
+      return d;
+    }
+
+    function buildPaycheckDates(startStr, months) {
+      const dates = []; let cur = parseDate(startStr); const end = addMonths(cur, months);
+      while (cur <= end) { dates.push(new Date(cur)); cur = nextPaycheckDate(cur); }
+      return dates;
+    }
+
+    function buildBillEvents(activeBills, horizonMonths, startStr) {
+      const events = [];
+      const horizon = addMonths(parseDate(startStr), horizonMonths);
+      const today = parseDate(startStr);
+      activeBills.forEach(b => {
+        const amt = parseFloat(b.amount) || 0; if (!amt || !b.dueDate) return;
+        const ro = REPEAT_OPTIONS.find(r => r.key === b.repeat);
+        let due = parseDate(b.dueDate);
+        let endDate = new Date(horizon);
+        if (ro && ro.hasDuration && parseInt(b.months) > 0) {
+          const cap = addMonths(due, (parseInt(b.months) - 1) * (ro.monthsApart || 1));
+          if (cap < endDate) endDate = cap;
+        }
+        while (due <= endDate) {
+          // Only add events from today onwards
+          if (due >= today) {
+            events.push({ date: new Date(due), name: b.name || 'Bill', amount: amt });
+          }
+          if (!ro) break;
+          if (ro.daysApart) due = addDays(due, ro.daysApart);
+          else if (ro.monthsApart) due = addMonths(due, ro.monthsApart);
+          else break;
+        }
+      });
+      return events;
+    }
+
+    function buildDepositEvents(activeDeposits, horizonMonths, startStr) {
+      const events = [];
+      const horizon = addMonths(parseDate(startStr), horizonMonths);
+      const today = parseDate(startStr);
+      activeDeposits.forEach(d => {
+        const amt = parseFloat(d.amount) || 0; if (!amt || !d.date) return;
+        const due = parseDate(d.date);
+        // Only add deposits from today onwards
+        if (due >= today && due <= horizon) {
+          events.push({ date: new Date(due), description: d.description || 'One-off deposit', amount: amt });
+        }
+      });
+      return events;
+    }
+
+    // ── Escrow algorithm ──────────────────────────────────────────────────────────
+
+    function fmt(n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    function simulate(deposit, paycheckDates, billEvents, depositEvents, openingBalance, minBuffer) {
+      let balance = openingBalance;
+      const timeline = [];
+      const allDates = new Set();
+      paycheckDates.forEach(d => allDates.add(dateStr(d)));
+      billEvents.forEach(e => allDates.add(dateStr(e.date)));
+      depositEvents.forEach(e => allDates.add(dateStr(e.date)));
+      const sorted = [...allDates].sort();
+      const paycheckSet = new Set(paycheckDates.map(d => dateStr(d)));
+      const billMap = {};
+      billEvents.forEach(e => { const k = dateStr(e.date); if (!billMap[k]) billMap[k] = []; billMap[k].push(e); });
+      const depositMap = {};
+      depositEvents.forEach(e => { const k = dateStr(e.date); if (!depositMap[k]) depositMap[k] = []; depositMap[k].push(e); });
+      let minBalance = balance, failed = false, failReason = '';
+      for (const ds of sorted) {
+        if (paycheckSet.has(ds)) { balance += deposit; timeline.push({ type: 'pay', date: ds, deposit, balance }); }
+        if (depositMap[ds]) {
+          for (const ev of depositMap[ds]) {
+            balance += ev.amount;
+            timeline.push({ type: 'deposit', date: ds, amount: ev.amount, balance, label: ev.description });
+          }
+        }
+        if (billMap[ds]) {
+          for (const ev of billMap[ds]) {
+            balance -= ev.amount;
+            timeline.push({ type: 'bill', date: ds, amount: ev.amount, balance, label: ev.name });
+            // fail if balance drops below the minimum buffer
+            if (balance < minBuffer - 0.005) {
+              failed = true;
+              if (!failReason) failReason = `${ev.name} (${fmt(ev.amount)} due ${ds}) would bring balance to ${fmt(balance)}, below your $${minBuffer} minimum.`;
+            }
+          }
+        }
+        // Track minimum balance after ALL transactions for this date
+        if (balance < minBalance) minBalance = balance;
+      }
+      return { balance, minBalance, failed, failReason, timeline };
+    }
+
+    function solveDeposit(paycheckDates, billEvents, depositEvents, openingBalance, minBuffer) {
+      if (!paycheckDates.length || !billEvents.length) return { deposit: 0, feasible: true, minBalance: openingBalance, timeline: [] };
+
+      console.log('solveDeposit called with:');
+      console.log('- paycheckDates:', paycheckDates.map(d => dateStr(d)));
+      console.log('- billEvents (sorted by date):', billEvents.sort((a, b) => new Date(a.date) - new Date(b.date)));
+      console.log('- depositEvents:', depositEvents);
+      console.log('- openingBalance:', openingBalance);
+      console.log('- minBuffer:', minBuffer);
+
+      const totalBills = billEvents.reduce((sum, e) => sum + e.amount, 0);
+      const totalDeposits = depositEvents.reduce((sum, e) => sum + e.amount, 0);
+      console.log('- Total Bills:', totalBills);
+      console.log('- Total Deposits:', totalDeposits);
+      console.log('- Net Outflow:', totalBills - totalDeposits);
+
+      const firstPay = dateStr(paycheckDates[0]);
+      const before = billEvents.filter(e => dateStr(e.date) < firstPay);
+      const totalBefore = before.reduce((s, e) => s + e.amount, 0);
+      const depositsBeforeFirstPay = depositEvents.filter(e => dateStr(e.date) < firstPay);
+      const totalDepositsBefore = depositsBeforeFirstPay.reduce((s, e) => s + e.amount, 0);
+      // Opening balance must cover pre-first-paycheck bills AND keep above buffer (accounting for deposits)
+      if (totalBefore > openingBalance + totalDepositsBefore - minBuffer + 0.005)
+        return { deposit: 0, feasible: false, reason: `${before.map(e => e.name).join(', ') || 'A bill'} is due before your first paycheck and your balance would fall below your $${minBuffer} minimum. You need ${fmt(totalBefore - (openingBalance + totalDepositsBefore - minBuffer))} more in your account today.` };
+
+      // Calculate the net bills (bills - deposits)
+      const totalBillsAmount = billEvents.reduce((s, e) => s + e.amount, 0);
+      const totalDepositsAmount = depositEvents.reduce((s, e) => s + e.amount, 0);
+      const netOutflow = totalBillsAmount - totalDepositsAmount;
+
+      let lo = 0, hi = Math.max(netOutflow, 10000) + minBuffer;
+      console.log('Binary search bounds: lo=' + lo + ', hi=' + hi + ' (netOutflow=' + netOutflow + ')');
+
+      if (simulate(hi, paycheckDates, billEvents, depositEvents, openingBalance, minBuffer).failed)
+        return { deposit: 0, feasible: false, reason: 'Not enough paychecks before one or more bills. ' + simulate(hi, paycheckDates, billEvents, depositEvents, openingBalance, minBuffer).failReason };
+
+      for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (simulate(mid, paycheckDates, billEvents, depositEvents, openingBalance, minBuffer).failed) lo = mid; else hi = mid; }
+      const deposit = Math.ceil(hi * 100) / 100;
+      const final = simulate(deposit, paycheckDates, billEvents, depositEvents, openingBalance, minBuffer);
+      console.log('Final deposit calculated:', deposit);
+      return { deposit, feasible: true, minBalance: final.minBalance, timeline: final.timeline };
+    }
+
+    function computeAnnualTotal() {
+      return bills.reduce((total, b) => {
+        const ro = REPEAT_OPTIONS.find(r => r.key === b.repeat);
+        const amt = parseFloat(b.amount) || 0;
+        if (!ro || ro.key === 'once') return total + amt;
+        let occ;
+        if (ro.daysApart) occ = Math.round(365 / ro.daysApart);
+        else if (ro.monthsApart) { occ = 12 / ro.monthsApart; if (ro.hasDuration && parseInt(b.months) > 0) occ = Math.min(occ, parseInt(b.months) / ro.monthsApart); }
+        return total + amt * (occ || 1);
+      }, 0);
+    }
+
+    // ── UI update ─────────────────────────────────────────────────────────────────
+
+    function update() {
+      const nextPayStr = document.getElementById('nextPayday').value;
+      const balance = parseFloat(document.getElementById('balanceInput').value) || 0;
+      const minBuffer = parseFloat(document.getElementById('minBufferInput').value) || 0;
+      const activeBills = bills.filter(b => parseFloat(b.amount) > 0 && b.dueDate);
+      const activeDeposits = deposits.filter(d => parseFloat(d.amount) > 0 && d.date);
+      const resultBox = document.getElementById('resultBox');
+      const summaryGrid = document.getElementById('summaryGrid');
+      const timelineSection = document.getElementById('timelineSection');
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = dateStr(today);
+
+      if (!nextPayStr) {
+        resultBox.style.display = 'none'; summaryGrid.style.display = 'none'; timelineSection.style.display = 'none'; return;
+      }
+
+      // Show grid if there are bills or deposits
+      if (!activeBills.length && !activeDeposits.length) {
+        resultBox.style.display = 'none'; summaryGrid.style.display = 'none'; timelineSection.style.display = 'none'; return;
+      }
+
+      const paycheckDates = buildPaycheckDates(nextPayStr, 24);
+      const billEvents = buildBillEvents(activeBills, 24, todayStr);
+      const depositEvents = buildDepositEvents(activeDeposits, 24, todayStr);
+
+      // If there are no bills, show a simplified result
+      if (!activeBills.length) {
+        resultBox.style.display = 'none'; summaryGrid.style.display = 'none';
+        renderTimeline([], minBuffer, balance, todayStr);
+        timelineSection.style.display = 'block';
+        return;
+      }
+
+      const result = solveDeposit(paycheckDates, billEvents, depositEvents, balance, minBuffer);
+      resultBox.style.display = 'block';
+
+      if (!result.feasible) {
+        resultBox.className = 'result-box result-err';
+        document.getElementById('resultLabel').textContent = 'Cannot be funded';
+        document.getElementById('resultAmount').textContent = 'Impossible';
+        document.getElementById('resultSub').textContent = result.reason || 'Adjust your balance or due dates.';
+        summaryGrid.style.display = 'none'; timelineSection.style.display = 'none';
+      } else {
+        resultBox.className = 'result-box result-ok';
+        document.getElementById('resultLabel').textContent = 'Deposit per paycheck';
+        document.getElementById('resultAmount').textContent = fmt(result.deposit);
+        document.getElementById('resultSub').textContent = `Set aside exactly this amount every ${payFreq.label.toLowerCase()} paycheck and every bill will always be covered${minBuffer > 0 ? `, keeping at least ${fmt(minBuffer)} in reserve` : ''}.`;
+        document.getElementById('annualTotal').textContent = fmt(computeAnnualTotal());
+        document.getElementById('paysPerYear').textContent = payFreq.perYear;
+        document.getElementById('freqLabel').textContent = payFreq.label.toLowerCase();
+        document.getElementById('minBalance').textContent = fmt(result.minBalance);
+        renderTimeline(result.timeline, minBuffer, balance, todayStr);
+        summaryGrid.style.display = 'grid'; timelineSection.style.display = 'block';
+      }
+      scheduleSave();
+    }
+
+    // ── Timeline ──────────────────────────────────────────────────────────────────
+
+    function renderTimeline(timeline, minBuffer, openingBalance, todayStr) {
+      const rows = document.getElementById('timelineRows');
+      const btn = document.getElementById('showMoreBtn');
+      const today = parseDate(todayStr);
+      const twelveMo = addMonths(today, 12);
+
+      // Collect all bills and deposits that occur from today onwards
+      const activeBills = bills.filter(b => parseFloat(b.amount) > 0 && b.dueDate);
+      const activeDeposits = deposits.filter(d => parseFloat(d.amount) > 0 && d.date);
+      const earlyEvents = [];
+
+      // Get events between today and the first item in timeline
+      const firstTimelineDate = timeline.length > 0 ? parseDate(timeline[0].date) : null;
+
+      activeBills.forEach(b => {
+        const amt = parseFloat(b.amount) || 0;
+        if (!amt || !b.dueDate) return;
+        const due = parseDate(b.dueDate);
+        if (due >= today && (!firstTimelineDate || due < firstTimelineDate)) {
+          earlyEvents.push({ date: new Date(due), name: b.name || 'Bill', amount: amt, type: 'bill' });
+        }
+      });
+
+      activeDeposits.forEach(d => {
+        const amt = parseFloat(d.amount) || 0;
+        if (!amt || !d.date) return;
+        const due = parseDate(d.date);
+        if (due >= today && (!firstTimelineDate || due < firstTimelineDate)) {
+          earlyEvents.push({ date: new Date(due), description: d.description || 'Deposit', amount: amt, type: 'deposit' });
+        }
+      });
+
+      earlyEvents.sort((a, b) => a.date - b.date);
+
+      // Combine early events with timeline
+      const fullTimeline = [...earlyEvents, ...timeline];
+      const futureTimeline = fullTimeline.filter(e => dateStr(e.date) >= todayStr);
+      const short = futureTimeline.filter(e => parseDate(e.date) <= twelveMo);
+
+      function render(items) {
+        rows.innerHTML = '';
+        let balance = openingBalance;
+
+        items.forEach((e, idx) => {
+          const dl = parseDate(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+          // Update balance
+          if (e.type === 'bill') {
+            balance -= e.amount;
+          } else if (e.type === 'deposit') {
+            balance += e.amount;
+          } else if (e.type === 'pay') {
+            balance += e.deposit;
+          }
+
+          const balOk = balance >= minBuffer - 0.005;
+          const balNeg = balance < -0.005;
+          const balClass = balNeg ? 'tl-bal-bad' : (balOk ? 'tl-bal-ok' : 'tl-bal-warn');
+          const div = document.createElement('div');
+
+          if (e.type === 'pay') {
+            div.className = 'tl-row tl-payday';
+            div.innerHTML = `
+          <span class="tl-name">&#x2193; Paycheck &mdash; <span style="font-weight:400;color:var(--text2);">${dl}</span></span>
+          <span class="tl-txn">+ ${fmt(e.deposit)}</span>
+          <span class="tl-bal ${balClass}">${fmt(balance)}</span>`;
+          } else if (e.type === 'deposit') {
+            div.className = 'tl-row tl-payday';
+            div.innerHTML = `
+          <span class="tl-name">&#x2191; ${escHtml(e.description || e.label)} &mdash; <span style="font-weight:400;color:var(--text2);">${dl}</span></span>
+          <span class="tl-txn">+ ${fmt(e.amount)}</span>
+          <span class="tl-bal ${balClass}">${fmt(balance)}</span>`;
+          } else {
+            div.className = 'tl-row ' + (balOk ? 'tl-bill' : 'tl-bill-overdue');
+            div.innerHTML = `
+          <span class="tl-name">&#x2192; ${escHtml(e.name || e.label)} &mdash; <span style="font-weight:400;color:var(--text2);">${dl}</span></span>
+          <span class="tl-txn">&minus; ${fmt(e.amount)}</span>
+          <span class="tl-bal ${balClass}">${fmt(balance)}</span>`;
+          }
+          rows.appendChild(div);
+        });
+      }
+
+      if (showFullTimeline) { render(futureTimeline); btn.textContent = 'Show 12-month view'; }
+      else { render(short); btn.textContent = 'Show full 2-year timeline'; }
+      btn.style.display = futureTimeline.length > short.length ? 'block' : 'none';
+    }
+
+    function toggleTimeline() { showFullTimeline = !showFullTimeline; update(); }
+
+    // ── Frequency buttons ─────────────────────────────────────────────────────────
+
+    function renderFreqButtons() {
+      const g = document.getElementById('freqGrid'); g.innerHTML = '';
+      FREQ_OPTIONS.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'freq-btn' + (opt.key === payFreq.key ? ' active' : '');
+        btn.textContent = opt.label;
+        btn.onclick = () => { payFreq = opt; renderFreqButtons(); update(); };
+        g.appendChild(btn);
+      });
+    }
+
+    // ── Bills table ───────────────────────────────────────────────────────────────
+
+    function addBill() {
+      bills.push({ id: nextId++, name: '', amount: '', dueDate: '', repeat: 'annual', months: '' });
+      renderBills();
+      const inputs = document.querySelectorAll('input[data-field="name"]');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+      scheduleSave();
+    }
+
+    function removeBill(id) { bills = bills.filter(b => b.id !== id); renderBills(); update(); }
+
+    function bindRow(tr, bill) {
+      tr.querySelectorAll('input[data-field]').forEach(el => {
+        el.addEventListener('input', e => { bill[e.target.dataset.field] = e.target.value; update(); });
+        el.addEventListener('change', e => { bill[e.target.dataset.field] = e.target.value; update(); });
+      });
+      const sel = tr.querySelector('select[data-field="repeat"]');
+      if (sel) {
+        sel.addEventListener('change', e => {
+          bill.repeat = e.target.value;
+          const ro = REPEAT_OPTIONS.find(r => r.key === bill.repeat);
+          if (!ro || !ro.hasDuration) bill.months = '';
+          renderBills(); update();
+        });
+      }
+      const delBtn = tr.querySelector('.del-btn');
+      if (delBtn) delBtn.addEventListener('click', () => removeBill(bill.id));
+    }
+
+    function renderBills() {
+      const tbody = document.getElementById('billsBody'); tbody.innerHTML = '';
+      bills.forEach(bill => {
+        const ro = REPEAT_OPTIONS.find(r => r.key === bill.repeat);
+        const showDur = ro && ro.hasDuration;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td><input type="text" placeholder="e.g. Property tax" value="${escHtml(bill.name)}" data-field="name"></td>
+      <td><div style="display:flex;align-items:center;gap:3px;">
+          <span style="color:var(--text3);font-size:12px;">$</span>
+          <input type="number" placeholder="0.00" value="${escHtml(bill.amount)}" min="0" step="0.01" data-field="amount" style="width:80px;"></div></td>
+      <td><input type="date" value="${escHtml(bill.dueDate)}" data-field="dueDate"></td>
+      <td><select data-field="repeat">${REPEAT_OPTIONS.map(r => `<option value="${r.key}"${r.key === bill.repeat ? ' selected' : ''}>${r.label}</option>`).join('')}</select></td>
+      <td>${showDur
+            ? `<div style="display:flex;align-items:center;gap:6px;"><input type="number" class="dur-input" data-field="months" placeholder="&#8734;" min="1" max="360" step="1" value="${escHtml(bill.months)}"><span style="font-size:11px;color:var(--text3);">months</span></div>`
+            : `<span style="font-size:12px;color:var(--text3);">&mdash;</span>`}</td>
+      <td><button class="del-btn" title="Remove">&times;</button></td>`;
+        bindRow(tr, bill);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── One-off deposits ──────────────────────────────────────────────────────────
+
+    function addDeposit() {
+      deposits.push({ id: nextDepositId++, description: '', amount: '', date: '' });
+      renderDeposits();
+      const inputs = document.querySelectorAll('input[data-deposit-field="description"]');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+      scheduleSave();
+    }
+
+    function removeDeposit(id) { deposits = deposits.filter(d => d.id !== id); renderDeposits(); update(); }
+
+    function bindDepositRow(tr, deposit) {
+      tr.querySelectorAll('input[data-deposit-field]').forEach(el => {
+        el.addEventListener('input', e => { deposit[e.target.dataset.depositField] = e.target.value; update(); });
+        el.addEventListener('change', e => { deposit[e.target.dataset.depositField] = e.target.value; update(); });
+      });
+      const delBtn = tr.querySelector('.del-btn');
+      if (delBtn) delBtn.addEventListener('click', () => removeDeposit(deposit.id));
+    }
+
+    function renderDeposits() {
+      const tbody = document.getElementById('depositsBody'); tbody.innerHTML = '';
+      deposits.forEach(deposit => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td><input type="text" placeholder="e.g. Year-end bonus" value="${escHtml(deposit.description)}" data-deposit-field="description"></td>
+      <td><div style="display:flex;align-items:center;gap:3px;">
+          <span style="color:var(--text3);font-size:12px;">$</span>
+          <input type="number" placeholder="0.00" value="${escHtml(deposit.amount)}" min="0" step="0.01" data-deposit-field="amount" style="width:100px;"></div></td>
+      <td><input type="date" value="${escHtml(deposit.date)}" data-deposit-field="date"></td>
+      <td><button class="del-btn" title="Remove">&times;</button></td>`;
+        bindDepositRow(tr, deposit);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escHtml(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────────
+
+    document.getElementById('nextPayday').addEventListener('change', update);
+    document.getElementById('balanceInput').addEventListener('input', update);
+    document.getElementById('minBufferInput').addEventListener('input', update);
+
+    const loaded = loadFromStorage();
+    if (!loaded) {
+      document.getElementById('nextPayday').value = '';
+      const today = new Date();
+      const d1 = new Date(today); d1.setMonth(d1.getMonth() + 6);
+      const d2 = new Date(today); d2.setMonth(d2.getMonth() + 8);
+      const d3 = new Date(today); d3.setMonth(d3.getMonth() + 1);
+      bills = [
+        { id: nextId++, name: 'Property tax', amount: 9000, dueDate: d1.toISOString().split('T')[0], repeat: 'annual', months: '' },
+        { id: nextId++, name: 'Home insurance', amount: 1500, dueDate: d2.toISOString().split('T')[0], repeat: 'annual', months: '' },
+        { id: nextId++, name: 'Car insurance', amount: 180, dueDate: d3.toISOString().split('T')[0], repeat: 'monthly', months: '9' },
+      ];
+      document.getElementById('nextPayday').value = today.toISOString().split('T')[0];
+    }
+
+    renderFreqButtons();
+    renderBills();
+    renderDeposits();
+    update();
+  </script>
+</body>
+
+</html>

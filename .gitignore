@@ -1,0 +1,19 @@
+# Firebase CLI deploy cache and logs (logs can contain account details)
+.firebase/
+firebase-debug.log*
+firebase-debug.*.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Exported plan backups contain real financial data — never commit them
+escrow-plan-*.json
+
+# Editor / OS clutter
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (if tooling is ever added)
+node_modules/

@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Any signed-in user gets one private document: users/{their uid}.
+    // Nobody can read or write anyone else's document.
+    match /users/{uid} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+
+      // A saved document must look like { plan: {...}, updatedAt: <server time> }
+      // and stay a sensible size, so the project can't be used as free general storage.
+      function isValidPlan() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['plan', 'updatedAt'])
+          && d.plan is map
+          && d.updatedAt == request.time
+          && (!('bills' in d.plan) || (d.plan.bills is list && d.plan.bills.size() <= 500))
+          && (!('deposits' in d.plan) || (d.plan.deposits is list && d.plan.deposits.size() <= 500));
+      }
+
+      allow read, delete: if isOwner();
+      allow create, update: if isOwner() && isValidPlan();
+    }
+
+    // Everything else is denied by default.
+  }
+}
